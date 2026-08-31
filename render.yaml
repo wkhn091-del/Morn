@@ -1,0 +1,28 @@
+# Render blueprint.
+#
+# Free tier has no persistent disk, so data/books.db must be committed
+# to the repo — the build has nothing to crawl with and nowhere to put
+# a result. Build the catalog locally, commit it, deploy.
+#
+# Free instances also sleep after ~15 minutes idle; the next request
+# takes 30–60s to wake. frontend/js/config.js handles that in the UI.
+
+services:
+  - type: web
+    name: ganzach
+    runtime: python
+    plan: free
+    region: frankfurt          # closest to most users of this catalog
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      # Path is relative to the repo root, which is Render's working dir.
+      - key: GANZACH_DB
+        value: data/books.db
+      # The PDF stream proxy. Set to 0 to disable it and fall back to
+      # opening HebrewBooks in a new tab.
+      - key: GANZACH_PROXY
+        value: "1"

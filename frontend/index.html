@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>גנזך · קטלוג ספרים</title>
+<meta name="description" content="חיפוש מקומי בקטלוג ספרים. החיפוש עובד ללא אינטרנט, הקריאה מהמקור.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;800;900&family=Assistant:wght@300;400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<!-- ══ shelf bar ══════════════════════════════════════════ -->
+<header class="shelf">
+  <div class="shelf__mark">גנזך</div>
+  <div class="shelf__meta">
+    <span class="tally" id="tally">—</span>
+    <span class="tally__label">ספרים במפתח</span>
+    <span class="dot" id="conn-dot" title="בודק חיבור"></span>
+  </div>
+</header>
+
+<!-- ══ drawer: search ═════════════════════════════════════ -->
+<main class="drawer">
+
+  <section class="query" role="search">
+    <label class="query__label" for="q">חיפוש בקטלוג</label>
+
+    <div class="query__field">
+      <input
+        id="q"
+        type="search"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        placeholder="שם ספר או מחבר"
+        aria-label="חיפוש שם ספר או מחבר"
+        aria-controls="results"
+        aria-describedby="readout">
+      <button class="query__clear" id="clear" type="button" aria-label="נקה חיפוש" hidden>×</button>
+    </div>
+
+    <div class="chips" id="chips" role="group" aria-label="סינון לפי נושא"></div>
+
+    <!-- the thesis: local index, so the number is small and we show it -->
+    <p class="readout" id="readout" role="status" aria-live="polite">
+      <span class="readout__count">—</span>
+    </p>
+  </section>
+
+  <section class="cards" id="results" aria-live="polite" aria-busy="false"></section>
+
+  <div class="more">
+    <button class="more__btn" id="more" type="button" hidden>עוד תוצאות</button>
+  </div>
+
+</main>
+
+<!-- ══ reader ═════════════════════════════════════════════ -->
+<div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-labelledby="reader-title">
+  <header class="reader__bar">
+    <button class="reader__close" id="reader-close" type="button" aria-label="סגור">←</button>
+
+    <div class="reader__id">
+      <h2 id="reader-title"></h2>
+      <p id="reader-sub"></p>
+    </div>
+
+    <div class="reader__tools">
+      <a id="reader-external" class="btn btn--ghost" target="_blank" rel="noopener">פתח בלשונית</a>
+    </div>
+  </header>
+
+  <div class="reader__stage" id="reader-stage">
+    <div class="reader__loading" id="reader-loading">
+      <span class="spinner" aria-hidden="true"></span>
+      טוען מהשרת של HebrewBooks
+    </div>
+  </div>
+</div>
+
+<!-- Optional: force a specific backend.
+     window.GANZACH_API = "https://ganzach.onrender.com"; -->
+<script src="/js/config.js"></script>
+<script src="/js/viewer.js"></script>
+<script src="/js/search.js"></script>
+</body>
+</html>

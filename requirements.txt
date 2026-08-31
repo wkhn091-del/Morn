@@ -1,0 +1,14 @@
+# ── Indexer ────────────────────────────────────────────────────────────
+# curl_cffi, not aiohttp/requests. Cloudflare fingerprints the TLS
+# handshake — cipher order, extension order, ALPN, HTTP/2 SETTINGS — and
+# Python's ssl module produces a shape nothing like Chrome's. curl_cffi
+# binds curl-impersonate, which reproduces a real browser's ClientHello
+# byte for byte. Prebuilt wheels for Linux, macOS and Windows.
+curl_cffi>=0.7.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+
+# ── Backend ────────────────────────────────────────────────────────────
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+httpx>=0.27.0

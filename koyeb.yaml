@@ -1,0 +1,42 @@
+# Koyeb config file. The Web UI can do all of this; keeping it in the
+# repo means the deploy is diffable and survives someone editing a form.
+#
+# Free Instance constraints this reflects:
+#   - one instance per organization
+#   - fra (Frankfurt) or was (Washington DC) only
+#   - no Volumes, so data/books.db must be inside the image
+#   - scales to zero after 1h idle; not configurable on free
+
+app: ganzach
+
+services:
+  - name: web
+    type: web
+    instance_type: free
+    regions:
+      - fra                       # closest to most readers of this catalog
+    git:
+      repository: github.com/YOUR_USERNAME/YOUR_REPO
+      branch: main
+      builder: docker             # see Dockerfile
+      docker:
+        dockerfile: Dockerfile
+    ports:
+      - port: 8000
+        protocol: http
+    routes:
+      - path: /
+        port: 8000
+    health_checks:
+      - http:
+          port: 8000
+          path: /api/health       # 503 until the catalog loads, so a
+        grace_period: 20          # missing DB fails the deploy loudly
+        interval: 30
+        timeout: 5
+        restart_limit: 3
+    env:
+      - key: GANZACH_DB
+        value: /app/data/books.db
+      - key: GANZACH_PROXY
+        value: "1"

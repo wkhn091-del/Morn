@@ -1,0 +1,12 @@
+.git
+.github
+.venv
+venv
+__pycache__
+*.py[cod]
+tests
+indexer
+render.yaml
+README.md
+data/*.db-wal
+data/*.db-shm

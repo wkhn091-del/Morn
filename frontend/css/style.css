@@ -1,0 +1,503 @@
+/* ═══════════════════════════════════════════════════════════
+   Ganzach
+
+   The reference object is a beis-medrash card catalog: buckram
+   drawer, card stock, a shelf mark stamped in the corner. Red is
+   rubric red — the second ink of Hebrew letterpress, used for
+   headings only — so it appears on exactly two things here: the
+   match highlight and the timing readout.
+
+   paper    #E4E0D4   drawer linen, the page ground
+   card     #F8F6F0   card stock
+   ink      #201E1A   letterpress black
+   soft     #6E6859   secondary text
+   rubric   #8C2F2A   oxblood, second ink
+   rule     #C6C0AF   hairline
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  --paper:  #E4E0D4;
+  --card:   #F8F6F0;
+  --ink:    #201E1A;
+  --soft:   #6E6859;
+  --rubric: #8C2F2A;
+  --rule:   #C6C0AF;
+
+  --display: "Frank Ruhl Libre", "David Libre", Georgia, serif;
+  --body:    "Assistant", "Segoe UI", system-ui, sans-serif;
+  --mono:    "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --measure: 62rem;
+  --lift: 0 1px 0 rgba(32, 30, 26, .06), 0 2px 8px rgba(32, 30, 26, .05);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--rubric);
+  outline-offset: 3px;
+}
+
+/* ── shelf bar ─────────────────────────────────────────── */
+
+.shelf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .85rem var(--gutter);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.shelf__mark {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.35rem;
+  letter-spacing: .01em;
+}
+
+.shelf__meta {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  color: var(--soft);
+  font-size: .8rem;
+}
+
+.tally {
+  font-family: var(--mono);
+  font-size: .85rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.tally__label { letter-spacing: .02em; }
+
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--rule);
+  align-self: center;
+  transition: background .2s;
+}
+.dot[data-state="local"]  { background: var(--rubric); }
+.dot[data-state="online"] { background: #4A7A52; }
+
+/* ── drawer ────────────────────────────────────────────── */
+
+.drawer {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: clamp(2rem, 7vh, 4.5rem) var(--gutter) 5rem;
+}
+
+/* ── query ─────────────────────────────────────────────── */
+
+.query__label {
+  display: block;
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin-bottom: .7rem;
+}
+
+.query__field { position: relative; }
+
+.query__field input {
+  width: 100%;
+  padding: .55rem 0 .75rem;
+  font-family: var(--display);
+  font-size: clamp(1.75rem, 5.5vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.2;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--ink);
+  border-radius: 0;
+  appearance: none;
+}
+
+.query__field input::placeholder {
+  color: var(--rule);
+  font-weight: 400;
+}
+
+.query__field input:focus {
+  outline: none;
+  border-bottom-color: var(--rubric);
+}
+
+.query__field input::-webkit-search-cancel-button { display: none; }
+
+.query__clear {
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: .8rem;
+  width: 2rem; height: 2rem;
+  display: grid; place-items: center;
+  background: none; border: 0;
+  font-size: 1.6rem; line-height: 1;
+  color: var(--soft);
+  cursor: pointer;
+}
+.query__clear:hover { color: var(--rubric); }
+
+/* ── chips ─────────────────────────────────────────────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-top: 1.1rem;
+  min-height: 1.9rem;
+}
+
+.chip {
+  padding: .22rem .7rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  font-size: .82rem;
+  color: var(--soft);
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  white-space: nowrap;
+}
+
+.chip:hover { border-color: var(--soft); color: var(--ink); }
+
+.chip[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--card);
+}
+
+.chip__n {
+  font-family: var(--mono);
+  font-size: .72rem;
+  opacity: .6;
+  margin-inline-start: .35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── readout: the signature ────────────────────────────── */
+
+.readout {
+  margin: 1.6rem 0 0;
+  padding-top: .8rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: .78rem;
+  letter-spacing: .02em;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+  min-height: 2.1rem;
+}
+
+.readout__count { color: var(--ink); }
+
+.readout__ms {
+  color: var(--rubric);
+  margin-inline-start: .5rem;
+}
+
+/* ── cards ─────────────────────────────────────────────── */
+
+.cards {
+  display: grid;
+  gap: .55rem;
+  margin-top: 1.4rem;
+}
+
+.card {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: start;
+  padding: 1rem 1.15rem 1rem 3.6rem;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: var(--lift);
+  transition: border-color .12s, transform .12s;
+}
+
+.card:hover {
+  border-color: var(--soft);
+  transform: translateY(-1px);
+}
+
+.card:active { transform: translateY(0); }
+
+/* the shelf mark — this IS the req ID the reader resolves */
+.card__mark {
+  position: absolute;
+  inset-inline-end: 1.05rem;
+  top: .95rem;
+  font-family: var(--mono);
+  font-size: .7rem;
+  color: var(--rule);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+}
+
+.card__title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.32rem;
+  font-weight: 800;
+  line-height: 1.25;
+  padding-inline-end: 3rem;
+}
+
+.card__line {
+  margin: .3rem 0 0;
+  font-size: .87rem;
+  color: var(--soft);
+}
+
+.card__sep { opacity: .45; margin: 0 .4rem; }
+
+/* rubricated match — the second ink */
+mark {
+  background: none;
+  color: var(--rubric);
+  font-weight: inherit;
+  padding: 0;
+}
+
+/* ── empty & error ─────────────────────────────────────── */
+
+.note {
+  padding: 3.5rem 0;
+  text-align: center;
+  color: var(--soft);
+}
+
+.note strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: .4rem;
+}
+
+.note code {
+  font-family: var(--mono);
+  font-size: .82rem;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  padding: .12rem .4rem;
+  border-radius: 2px;
+}
+
+/* ── more ──────────────────────────────────────────────── */
+
+.more { display: grid; place-items: center; margin-top: 1.8rem; }
+
+.more__btn {
+  padding: .55rem 1.6rem;
+  background: transparent;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: background .15s, color .15s;
+}
+
+.more__btn:hover { background: var(--ink); color: var(--card); }
+
+/* ── reader ────────────────────────────────────────────── */
+
+.reader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  animation: rise .22s cubic-bezier(.22, .61, .36, 1);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.reader__bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .6rem var(--gutter);
+  border-bottom: 1px solid var(--rule);
+  background: var(--card);
+  flex-shrink: 0;
+}
+
+.reader__close {
+  width: 2.2rem; height: 2.2rem;
+  display: grid; place-items: center;
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.reader__close:hover { border-color: var(--ink); }
+
+/* the arrow points back — in RTL that's to the right */
+.reader__close { transform: scaleX(-1); }
+
+.reader__id { flex: 1; min-width: 0; }
+
+.reader__id h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reader__id p {
+  margin: 0;
+  font-size: .78rem;
+  color: var(--soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reader__tools { display: flex; gap: .4rem; flex-shrink: 0; }
+
+.btn {
+  padding: .4rem .9rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  font-size: .82rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--ink); }
+.btn--solid { background: var(--ink); color: var(--card); border-color: var(--ink); }
+
+.reader__stage {
+  flex: 1;
+  position: relative;
+  background: #55514A;
+  overflow: hidden;
+}
+
+.reader__stage iframe,
+.reader__stage embed,
+.reader__stage object {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.reader__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: .9rem;
+  color: var(--card);
+  font-size: .88rem;
+}
+
+.spinner {
+  width: 22px; height: 22px;
+  border: 2px solid rgba(248, 246, 240, .25);
+  border-top-color: var(--card);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.reader__blocked {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  color: var(--card);
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.reader__blocked strong {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.reader__blocked p {
+  margin: 0;
+  font-size: .88rem;
+  opacity: .8;
+  line-height: 1.6;
+}
+
+.reader__blocked .btn {
+  color: var(--card);
+  border-color: rgba(248, 246, 240, .4);
+}
+.reader__blocked .btn:hover { border-color: var(--card); }
+.reader__blocked .btn--solid {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--card);
+}
+
+/* ── responsive ────────────────────────────────────────── */
+
+@media (max-width: 34rem) {
+  .shelf__meta .tally__label { display: none; }
+  .card { padding-inline-start: 1.15rem; padding-top: 2.1rem; }
+  .card__mark { top: .7rem; }
+  .card__title { padding-inline-end: 0; font-size: 1.18rem; }
+  .reader__tools .btn { padding: .4rem .6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

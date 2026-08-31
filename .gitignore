@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+# The catalog is the shipped artifact — Render's free tier has no
+# persistent disk, so it has to be in the repo or the backend has
+# nothing to serve. Only the WAL sidecars are ignored.
+data/*.db-wal
+data/*.db-shm
+.DS_Store

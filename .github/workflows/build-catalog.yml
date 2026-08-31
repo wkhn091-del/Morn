@@ -1,0 +1,114 @@
+name: Build catalog
+
+# The crawl is very likely to be refused from a GitHub-hosted runner —
+# those are Azure datacenter IPs and sit on most WAF blocklists. Run the
+# probe job first: it answers the question in ~15 seconds instead of
+# burning a crawl to find out.
+#
+# If the probe fails, build the catalog locally and commit data/books.db.
+# That is the intended path anyway — the crawl is a one-time step, and
+# shipping the finished database is the whole point of the architecture.
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_id:
+        description: "First ID"
+        default: "1"
+      end_id:
+        description: "Last ID"
+        default: "15000"
+      concurrency:
+        description: "Parallel requests (keep low)"
+        default: "6"
+      delay:
+        description: "Seconds between requests per worker"
+        default: "0.3"
+
+jobs:
+  probe:
+    name: Can this runner reach HebrewBooks?
+    runs-on: ubuntu-latest
+    outputs:
+      reachable: ${{ steps.check.outputs.reachable }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Show the runner's egress IP
+        run: |
+          echo "Runner egress IP: $(curl -s --max-time 10 https://api.ipify.org || echo unknown)"
+
+      - name: Probe
+        id: check
+        run: |
+          if python -m indexer.run --probe; then
+            echo "reachable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "reachable=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::This runner is blocked. Build the catalog locally and commit data/books.db."
+          fi
+
+  crawl:
+    name: Crawl
+    needs: probe
+    if: needs.probe.outputs.reachable == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # Resume across runs. A partial catalog is restored here and the
+      # crawler skips whatever it already resolved.
+      - name: Restore previous catalog
+        uses: actions/cache@v4
+        with:
+          path: data/books.db
+          key: catalog-${{ inputs.start_id }}-${{ inputs.end_id }}-${{ github.run_id }}
+          restore-keys: catalog-${{ inputs.start_id }}-${{ inputs.end_id }}-
+
+      - name: Crawl
+        run: |
+          python -m indexer.run \
+            --start "${{ inputs.start_id }}" \
+            --end "${{ inputs.end_id }}" \
+            --concurrency "${{ inputs.concurrency }}" \
+            --delay "${{ inputs.delay }}"
+
+      - name: Catalog stats
+        if: always()
+        run: python -m indexer.run --stats
+
+      # `always()` matters: a partial catalog from an aborted run is still
+      # worth keeping, and the next run resumes from it.
+      - name: Upload catalog
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: books-db
+          path: data/books.db
+          if-no-files-found: warn
+          retention-days: 30
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python tests/test_search.py
